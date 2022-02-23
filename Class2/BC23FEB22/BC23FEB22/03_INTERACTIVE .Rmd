@@ -1,0 +1,205 @@
+---
+jupyter:
+  jupytext:
+    text_representation:
+      extension: .Rmd
+      format_name: rmarkdown
+      format_version: '1.2'
+      jupytext_version: 1.13.1
+  kernelspec:
+    display_name: Python 3 (ipykernel)
+    language: python
+    name: python3
+---
+
+<h2>From Static to Interactive Visualization</h2>
+
+
+<h3>Interactive Data Visualization with Bokeh</h3>
+
+
+<h4>EX01: Creating the Base Static Plot for an Interactive Data Visualization
+</h4>
+
+```{python}
+import pandas as pd
+import numpy as np
+```
+
+```{python}
+co2 = pd.read_csv('./co2.csv')
+gm = pd.read_csv('./gapminder.csv')
+```
+
+```{python}
+co2.head()
+```
+
+```{python}
+gm.head()
+```
+
+```{python}
+df_gm = gm[['Country', 'region']].drop_duplicates()
+df_w_regions = pd.merge(co2, df_gm, 
+                        left_on = 'country', 
+                        right_on = 'Country', 
+                        how = 'inner')
+```
+
+```{python}
+df_w_regions.head()
+```
+
+```{python}
+df_w_regions = df_w_regions.drop('Country', axis = 1)
+new_co2 = pd.melt(df_w_regions, 
+                  id_vars = ['country', 'region'])
+new_co2.columns = ['country', 'region', 'year', 'co2']
+```
+
+```{python}
+new_co2.head()
+```
+
+```{python}
+df_co2 = new_co2[new_co2['year'].astype(int) > 1963].sort_values(by = ['country', 'year'])
+df_co2['year'] = df_co2['year'].astype(int)
+df_co2.head()
+```
+
+```{python}
+df_gdp = gm[['Country', 'Year', 'gdp']]
+df_gdp.columns = [x.lower() for x in df_gdp.columns]
+data = pd.merge(df_co2, df_gdp, on = ['country', 'year'], how = 'left').dropna()
+data.head()
+```
+
+first check
+
+```{python}
+data[['co2', 'gdp']].corr()
+```
+
+```{python}
+from bokeh.io import curdoc, output_notebook, show
+from bokeh.plotting import figure
+from bokeh.models import HoverTool, ColumnDataSource, CategoricalColorMapper, Slider
+from bokeh.palettes import Spectral6
+from bokeh.layouts import widgetbox, row
+output_notebook()
+```
+
+```{python}
+regions_list = data['region'].unique().tolist()
+color_mapper = CategoricalColorMapper(factors = regions_list, palette = Spectral6)
+source = ColumnDataSource(data = {'x' : data[data['year'] == 1964]['gdp'],
+                                  'y' : data[data['year'] == 1964]['co2'],
+                                  'country' : data[data['year'] == 1964]['country'],
+                                  'region' : data[data['year'] == 1964]['region']})
+xmin, xmax = min(data['gdp']), max(data['gdp'])
+ymin, ymax = min(data['co2']), max(data['co2'])
+```
+
+```{python}
+plot = figure(title = 'CO2 Emissions vs GDP in 1964',
+              plot_height = 600,
+              plot_width = 900,
+              y_range = (ymin, ymax),
+              y_axis_type = 'log')
+plot.circle(x = 'x',
+            y = 'y', 
+            fill_alpha = 0.8,
+            source = source,
+            legend = 'region',
+            color = dict(field = 'region',
+                         transform = color_mapper),
+            size = 7)
+plot.legend.location = 'bottom_right'
+plot.xaxis.axis_label = 'Income Per Person'
+plot.yaxis.axis_label = 'CO2 Emissions (tons per person)'
+show(plot)
+```
+
+<h4>EX02: Adding a Slider to the Static Plot</h4>
+
+```{python}
+slider = Slider(start = min(data['year']),
+                end = max(data['year']),
+                step = 1,
+                value = min(data['year']),
+                title = 'Year')
+def update_plot(sttr, old, new):
+    yr = slider.value
+    new_data = {'x' : data[data['year'] == yr]['gdp'],
+                'y' : data[data['year'] == yr]['co2'],
+                'country' : data[data['year'] == yr]['country'],
+                'region' : data[data['year'] == yr]['region']}
+    source.data = new_data
+    plot.title.text = 'CO@ Emissions vs GDP in %d' %yr
+```
+
+```{python}
+slider.on_change('value', update_plot)
+layout = row(widgetbox(slider), plot)
+curdoc().add_root(layout)
+```
+
+<h4>EX03: Adding a Hover Tool</h4>
+
+```{python}
+hover = HoverTool(tooltips = [('Country', '@country'),
+                              ('GDP','@x'),
+                              ('CO2 Emission', '@y')])
+plot.add_tools(hover)
+```
+
+```{python}
+show(plot)
+```
+
+```{python}
+# !pip install plotly
+```
+
+<h3>Interactive Data Visualization with Plotly Express</h3>
+
+
+<h4>EX04: Creating an Interactive Scatter Plot</h4> 
+
+```{python}
+import pandas as pd
+import plotly.express as px
+
+xmin, xmax = min(data['gdp']), max(data['gdp'])
+ymin, ymax = min(data['co2']), max(data['co2'])
+fig = px.scatter(data, 
+                 x = 'gdp',
+                 y = 'co2',
+                 animation_frame = 'year',
+                 animation_group = 'country',
+                 color = 'region',
+                 hover_name = 'country',
+                 facet_col = 'region',
+                 width = 1579,
+                 height = 400, 
+                 log_x = True,
+                 size_max = 45,
+                 range_x = [xmin, xmax],
+                 range_y = [ymin, ymax])
+fig.show()
+```
+
+<h4>Homework</h4>
+
+
+<ul>
+    <li>Create a Plotly Express scatter plot with the x- and y-axes as year and co2 respectively. Add a box plot for the co2 values with the marginaly_y parameter.
+    <li>Create a rug plot for the gdp values with the marginal_x parameter. Add the
+animation parameters on the year column
+    <li>Create a scatter plot with the x- and y-axes as gdp and co2 respectively.
+    <li>Create a density contour with the x- and y-axes as gdp and co2 respectively.
+
+```{python}
+
+```

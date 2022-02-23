@@ -1,0 +1,170 @@
+---
+jupyter:
+  jupytext:
+    text_representation:
+      extension: .Rmd
+      format_name: rmarkdown
+      format_version: '1.2'
+      jupytext_version: 1.13.1
+  kernelspec:
+    display_name: Python 3 (ipykernel)
+    language: python
+    name: python3
+---
+
+# Homework1
+
+
+<ul>
+    <li>Download the dataset and format it as a pandas DataFrame.
+    <li>Generate a plot indicating the number of medals awarded in each of the top five sports in 2016.
+        <ul>
+    <li>Filter the DataFrame to only include the rows corresponding to medal winners from 2016.
+    <li>Find out the medals awarded in 2016 for each sport.
+    <li>List the top five sports based on the largest number of medals awarded. Filter the DataFrame one more time to only include the records for the top five sports in 2016.
+     <li>Generate a bar plot of record counts corresponding to each of the top five sports.
+    </ul>
+    <li>Plot a graph depicting the distribution of the age of medal winners in the top five sports in 2016.
+    <ul>
+    <li>Generate a histogram for the Age feature of all medal winners in the top five sports (2016).
+    </ul>
+        <li>Find out which national teams won the largest number of medals in the top five sports in 2016.
+    <ul>
+    <li>Generate a bar plot indicating how many medals were won by each country's team in the top five sports in 2016.
+        </li>
+        </ul>
+    <li>Observe the trend in the average weight of male and female athletes winning in the top five sports in 2016.
+    <ul>
+        <li>Generate a bar plot indicating the average weight of players, categorized based on gender, winning in the top five sports in 2016.
+
+```{python}
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+from numpy import median, mean
+
+sns.set(style = "whitegrid")
+plt.style.use('ggplot')
+```
+
+### 1.Download the dataset and format it as a pandas DataFrame.
+
+```{python}
+athlete_events = pd.read_csv("./data/athlete_events.csv")
+athlete_events.head()
+```
+
+```{python}
+athlete_events.shape
+```
+
+```{python}
+athlete_events.info()
+```
+
+```{python}
+athlete_events.describe()
+```
+
+```{python}
+athlete_events.describe(include = 'O')
+```
+
+### 2. Generate a plot indicating the number of medals awarded in each of the top five sports in 2016.
+
+<br>
+<li>Filter the DataFrame to only include the rows corresponding to medal winners from 2016.
+
+
+```{python}
+athlete_events.Medal.unique()
+```
+
+```{python}
+winners = athlete_events.dropna(subset = ["Medal"])
+winners.head()
+```
+
+```{python}
+winners_2016 = winners[winners.Year == 2016]
+winners_2016.head()
+```
+
+<li> Find out the medals awarded in 2016 for each sport.
+
+```{python}
+count_winner_2016 = winners_2016.Sport.value_counts()
+count_winner_2016
+```
+
+<li> List the top five sports based on the largest number of medals awarded. Filter the DataFrame one more time to only include the records for the top five sports in 2016.
+
+```{python}
+top5_sports = count_winner_2016.to_frame()[:5].index.to_list()
+top5_sports
+```
+
+```{python}
+winners_2016_top5 = winners_2016[winners_2016.Sport.isin(top5_sports)]
+winners_2016_top5.head()
+```
+
+<li> Generate a bar plot of record counts corresponding to each of the top five sports.
+
+```{python}
+plt.style.use('ggplot')
+ax1 = sns.catplot('Sport', data = winners_2016_top5, aspect = 1.5, kind = 'count' , order = top5_sports)
+_ = ax1.set(title="Counts of the top five sports (2016)")
+```
+
+### 3.Plot a graph depicting the distribution of the age of medal winners in the top five sports in 2016.
+
+<ul>
+    <li>Generate a histogram for the Age feature of all medal winners in the top five sports (2016).
+    </ul>
+
+```{python}
+ax2 = sns.displot(winners_2016_top5.Age, kde = True, bins = 10, color = "g")
+_ = ax2.set(xlim=(winners_2016_top5.Age.min()-5, winners_2016_top5.Age.max()+5), title = "Age of all medal winners in the top five sports (2016).")
+```
+
+### 4. Find out which national teams won the largest number of medals in the top five sports in 2016.
+<br>
+<li>Generate a bar plot indicating how many medals were won by each country's team in the top five sports in 2016.
+
+```{python}
+winners_2016_top5.Team.unique()
+```
+
+```{python}
+team_rank = winners_2016_top5.Team.value_counts().index.to_list()
+team_rank[:5]
+```
+
+```{python}
+ax3 = sns.catplot("Team", data = winners_2016_top5, aspect = 2.5, kind = "count", order = team_rank)
+_ = ax3.set(title="Winners by each country's team in the top five sports (2016)")
+_ = ax3.set_xticklabels(rotation=90)
+```
+
+### 5. Observe the trend in the average weight of male and female athletes winning in the top five sports in 2016.
+<br>
+<li> Generate a bar plot indicating the average weight of players, categorized based on gender, winning in the top five sports in 2016.
+
+```{python}
+winners_2016_top5.head(2)
+```
+
+```{python}
+ax4 = sns.barplot(x = 'Sex', y = 'Weight' ,data = winners_2016_top5, estimator = mean)
+_ = ax4.set(xlabel="Sex", title ="Average weight of players by gender in top five sports (2016)" )
+```
+
+```{python}
+ax5 = sns.barplot(x = 'Sport', y = 'Weight', hue="Sex", data = winners_2016_top5, estimator = mean, order = top5_sports)
+_ = ax5.set(title = "Average weight of players by gender in each top five sports (2016)" )
+```
+
+```{python}
+
+```
