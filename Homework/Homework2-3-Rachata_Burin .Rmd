@@ -218,6 +218,10 @@ fig1.update_layout(
         'text': "Scatterplot with year and co2 respectively and boxplot for the co2 values by region",
         'y':0.95,
         'x':0.45})
+fig1.show()
+```
+
+```{python}
 fig1.show("png")
 ```
 
@@ -243,6 +247,10 @@ fig2.update_layout(
         'text': "Scatterplot with gdp and co2 respectively and rugplot for the gdp and boxplot for co2 by region",
         'y':0.95,
         'x':0.45})
+fig2.show()
+```
+
+```{python}
 fig2.show("png")
 ```
 
@@ -266,5 +274,13 @@ fig3.update_layout(
         'text': "Density contour with gdp and co2 respectively and rugplot for the gdp and boxplot for co2 by region",
         'y':0.95,
         'x':0.45})
+fig3.show()
+```
+
+```{python}
 fig3.show("png")
+```
+
+```{python}
+
 ```
