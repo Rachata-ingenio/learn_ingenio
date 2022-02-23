@@ -202,6 +202,10 @@ data.region.unique()
 ```
 
 ```{python}
+# !pip install -U kaleido
+```
+
+```{python}
 fig1 = px.scatter(data, 
                  x = 'year',
                  y = 'co2',
@@ -214,7 +218,7 @@ fig1.update_layout(
         'text': "Scatterplot with year and co2 respectively and boxplot for the co2 values by region",
         'y':0.95,
         'x':0.45})
-fig1.show()
+fig1.show("png")
 ```
 
  <li>Create a rug plot for the gdp values with the marginal_x parameter. Add the
@@ -239,7 +243,7 @@ fig2.update_layout(
         'text': "Scatterplot with gdp and co2 respectively and rugplot for the gdp and boxplot for co2 by region",
         'y':0.95,
         'x':0.45})
-fig2.show()
+fig2.show("png")
 ```
 
  <li>Create a density contour with the x- and y-axes as gdp and co2 respectively.
@@ -262,5 +266,5 @@ fig3.update_layout(
         'text': "Density contour with gdp and co2 respectively and rugplot for the gdp and boxplot for co2 by region",
         'y':0.95,
         'x':0.45})
-fig3.show()
+fig3.show("png")
 ```
