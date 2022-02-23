@@ -27,6 +27,8 @@ warnings.filterwarnings('ignore')
 plt.style.use('ggplot')
 ```
 
+## Prepare Data
+
 ```{python}
 athlete_events = pd.read_csv("../Dataset/athlete_events.csv")
 winners = athlete_events.dropna(subset = ["Medal"])
@@ -261,8 +263,4 @@ fig3.update_layout(
         'y':0.95,
         'x':0.45})
 fig3.show()
-```
-
-```{python}
-
 ```
